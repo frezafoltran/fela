@@ -1,0 +1,1083 @@
+{%extends "base.html"%}
+{%import 'bootstrap/wtf.html' as wtf%}
+
+{%block app_content%}
+    <head>
+
+        <style>
+
+            #cur-points-wrap{
+                color:rgb(155,187,89);
+                font-family:verdana;
+                font-size:20px;
+            }
+
+            .center-col{
+                align:center;
+                float:none;
+                display:inline-block;
+            }
+
+            #wrong-msg{
+                color:black;
+                font-family:verdana;
+            }
+
+            #wrong-msg-wrap{
+                width:80%;
+                background-color:rgb(192, 80, 77);
+                border-radius:15px;
+                align:center;
+                float:none;
+                display:none;
+            }
+
+            .add-info-perm{
+                background-color:rgb(31,73,125);
+                border-radius:15px;
+                align:center;
+                padding:2px;
+                margin:3px;
+            }
+
+            #add-info-wrap-1{
+                width:80%;
+                align:center;
+                float:none;
+                display:none;
+            }
+
+            #add-info-wrap-2{
+                width:80%;
+                align:center;
+                float:none;
+                display:none;
+            }
+
+            .side-button{
+                background-color:rgb(192, 80, 77);
+                border-radius:15px;
+                font-size:20px;
+                font-family:verdana;
+                opacity:0.9;
+
+                border:none;
+                margin:3px;
+            }
+
+            .side-button:hover{
+                opacity:1;
+            }
+
+            #qName{
+                font-size:30px;
+            }
+
+            .break-up-button{
+                display:none;
+            }
+
+            .break-up-explanation{
+              visibility: hidden;
+            }
+
+            .break-up-button:hover .break-up-explanation {
+              visibility: visible;
+            }
+
+            .title-txt{
+             color:rgb(31,73,125);
+             font-family:verdana;
+            }
+
+            .content-txt{
+             font-family:verdana;
+             font-color:black;
+            }
+
+            .clean-button{
+             background-color:rgb(238,236,225);
+             border:none;
+             margin:3px;
+             }
+
+            .side-hr {
+            display: block; height: 1px;
+            border: 0; border-top: 5px solid rgb(238,236,225);
+            margin: 1em 0; padding: 0;
+            }
+
+
+            .sidenav {
+              width: 16%;
+              position: fixed;
+              z-index: 1;
+              background: rgb(192, 80, 77);
+              opacity:0.9;
+              overflow: hidden;
+              margin-left: 15px;
+              border-radius:15px;
+
+            }
+
+            .sidenav a {
+              padding: 6px 8px 6px 16px;
+              text-decoration: none;
+              font-size: 20px;
+              color:black;
+              display: block;
+            }
+
+            .sidenav h4{
+                color:black;
+                font-weight:bold;
+            }
+
+            .sidenav:hover{
+            opacity:1;
+            }
+
+            .sidenav a:hover {
+              color:rgb(240,230,140);
+            }
+
+            .left-col{
+            width:20%;
+            float:left;
+            display:none;
+            }
+
+            .right-col{
+            width:20%;
+            float:right;
+            display:none;
+            overflow: hidden;
+            }
+
+            .main-col{
+            width:100%;
+            border:solid 2px rgb(31,73,125);
+            border-radius:10px;
+            }
+
+            @media screen and (min-width: 600px) {
+              .left-col {display:inline}
+              .right-col {display:inline}
+              .main-col {width:60%}
+            }
+
+
+        </style>
+
+    </head>
+
+<body>
+    <div class="container">
+
+        <div class="" style="display:flex;justify-content:left">
+
+            <div class="left-col">
+                <div  class="sidenav" style="margin-left:5px;">
+              <h4 style="cursor:context-menu">What</h4>
+
+                <hr class="side-hr">
+                <h4 style="cursor:context-menu">Now</h4>
+
+            </div>
+            </div>
+
+            <div class="main-col">
+
+                <br>
+                <span class="title-txt" id="qName"></span>
+
+                <div>
+                    <h4 class="content-txt" style="font-style:italic" id="question-summary"></h4>
+                </div>
+
+                <div id="results">
+
+                </div>
+
+                <div class="row center-col" style="width:90%; text-align:center;">
+
+                    <div class="col center-col" style="width:18%;" id="convert-button">
+                        <button class="side-button" onclick="convertUnits()">
+                           Convert Units
+                        </button>
+                    </div>
+
+                    <div class="col center-col" style="width:50%;" id="cur-points-wrap">
+
+                        <span>Max Points:<span id="cur-points" style="font-weight:bold;">10</span> (out of 10)</span>
+                    </div>
+
+                    <div class="col center-col" style="width:18%;">
+                        <button class="side-button" onclick="newQuestion()"><span>Another Question</span></button>
+                    </div>
+
+
+                </div>
+
+                <div id="question-body">
+                    <button onclick="breakItUpHandler()" id="break-up-id" class="clean-button break-up-button title-txt">
+                        <h4>Break it up<br>
+                        <span class="break-up-explanation title-txt">into smaller and simpler problems.</span></h4>
+                    </button>
+
+
+                    <h4 id="question-txt" class="content-txt"></h4>
+
+                    {%set letter_map = ['a', 'b', 'c', 'd']%}
+
+                    {%for i in range(4)%}
+                    <button id="option_wrapper_{{i}}" class="clean-button" onclick="optionHandler({{i}})">
+                        <p><span>{{letter_map[i]}}) </span><span id="option_{{i}}"></span></p>
+                    </button>
+                    <br>
+                    {%endfor%}
+
+                    <div id="wrong-msg-wrap">
+                        <h4 id="wrong-msg"></h4>
+                    </div>
+
+                    <div id="add-info-wrap-1">
+
+                    </div>
+                    <div id="add-info-wrap-2">
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+            <div class="right-col">
+                <div  class="sidenav">
+              <h4 style="cursor:context-menu" class="section">Top Rated Questions</h4>
+                    <div id="popular_questions">
+
+
+                        </div>
+
+                <hr class="side-hr">
+                <h4 style="cursor:context-menu">Now</h4>
+
+            </div>
+            </div>
+
+        </div>
+        <br><br>
+        <div class="row" style="display:flex;justify-content:left">
+            <div id="progress_bar" class="progress-bar progress-bar-info progress-bar-striped"
+                    role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="">
+                    </div>
+                <br>
+        </div>
+    </div>
+</body>
+
+{%endblock%}
+
+{%block scripts%}
+    {{super()}}
+    {{moment.include_moment()}}
+    {{moment.lang(g.locale)}}
+    <script>
+
+
+        //======================================= DATA (to be transferred to AWS)
+
+        var qName_1 = 'Ticket Stack'
+
+
+        //short summary of question to be displayed when user is answering to the sub-questions
+        var qSummary_1 = 'If we stacked all tickets of a lottery that draws 4 numbers from\
+         the range 1 through 100, how tall would this stack be?';
+
+        var q_1 = [['Consider a lottery that draws 4 numbers from the\
+            range 1 through 100 (not necessarily distinct).\
+            If we stacked all possible tickets for this lottery, how tall\
+            would this stack be?'],
+
+            ['How thick is a single lottery ticket?',
+            'First, estimate the thickness of a lottery ticket to be approximately\
+             the same as that of a playing card. How many cards are there in a deck of cards? ',
+             'How thick is a deck of cards?',
+             'How thick is a single lottery ticket?'],
+
+            ['How many distinct tickets does a lottery that draws 4 numbers \
+            between 1 and 100 have?'],
+
+            ['Consider a lottery that draws 4 numbers from the\
+            range 1 through 100 (not necessarily distinct).\
+            If we stacked all possible tickets for this lottery, how tall\
+            would this stack be?']
+            ];
+
+        var addInfo_1 = [[''],
+                        ['', '', '', 'A deck of 52 tickets has thickness of 1cm', 'One lottery ticket is 0.02 cm thick'],
+                        ['', 'There are 100,000,000 possible tickets.'],
+                        ['']];
+
+        var options_1 = [[['10 km', '50 km', '200 km', '1000 km', '200 km']],
+
+            [['0.01 cm', '0.02 cm', '0.03 cm', '0.05 cm', '0.02 cm'],
+            ['32', '42', '52', '62', '52'],
+            ['0.1 cm', '1 cm', '5 cm', '10 cm', '1 cm'],
+            ['0.01 cm', '0.02 cm', '0.03 cm', '0.05 cm', '0.02 cm']],
+
+            [['1,000,000,000', '100,000,000', '10,000,000', '1,000,000', '100,000,000']],
+
+            [['10 km', '50 km', '200 km', '1000 km', '200 km']]
+            ];
+
+        var individualFeedback_1 =  [[['Nope. It\'s very hard to win the lottery...', 'Not bad. But not good.',
+                                    'Oh ya!', 'Way too much.']],
+
+              [],
+
+              [],
+
+              []
+              ];
+
+        var trueAnswer_1 = '';
+
+        //-----------------------------------
+        var qName_2 = 'Number of Flights'
+
+
+        //short summary of question to be displayed when user is answering to the sub-questions
+        var qSummary_2 = 'How many flights do Americans take in a year?';
+
+        var q_2 = [['How many flights do Americans take in a year?'],
+
+            ['How many airports are there in the USA?'],
+
+            ['How many flights occur per year in one airport?',
+            'How often can airplanes take-off in an airport?',
+            'How many flights occur per year in one airport?'],
+
+            ['How many people can an airplane carry?'],
+
+            ['How many flights do Americans take in a year?']
+            ];
+
+        var addInfo_2 = [[''],
+                        ['', 'There are 100 airports in the US'],
+                        ['', '', 'A flight occurs every 5 minutes in an airport.', 'Each airport has 80,000 flights per year.'],
+                        ['', 'Each airplane carries 100 passengers'],
+                        ['']];
+
+        var options_2 = [[['8,000,000', '80,000,000', '800,000,000', '8,000,0000,000', '800,000,000']],
+
+            [['10', '50', '100', '500', '100']],
+
+            [['800', '8,000', '80,000', '800,000', '80,000'],
+             ['Once per second', 'One per 5 minutes', 'One per hour', 'One per day', 'One per 5 minutes'],
+             ['800', '8,000', '80,000', '800,000', '80,000']],
+
+            [['10', '100', '1,000', '10,000', '100']],
+
+            [['8,000,000', '80,000,000', '800,000,000', '8,000,0000,000', '800,000,000']]
+            ];
+
+        var individualFeedback_2 =  [[],
+
+              [],
+
+              [],
+
+              []
+              ];
+
+        var trueAnswer_2 = 'As of 2017, the US had 849,300,000 passengers throughout the year.'
+
+        //----------------------------------
+         var qName_3 = 'Number of Piano Tuners'
+
+
+        //short summary of question to be displayed when user is answering to the sub-questions
+        var qSummary_3 = 'How many piano tuners are there in Sao Paulo?';
+
+        var q_3 = [['How many piano tuners are there in Sao Paulo?'],
+
+            ['How many pianos are there in Sao Paulo?',
+            'What is Sao Paulo\'s population?',
+            'What proportion of this population own a piano?',
+            'How many pianos are found in churches, concert halls, schools?',
+            'How many pianos are there in Sao Paulo?'],
+
+            ['How many pianos a piano tuner can take care of?',
+            'How often is each piano tuned?',
+            'How long does a piano tuner take to tune each piano?',
+            'How much time does each piano tuner spend tuning pianos per year?',
+            'How many pianos a piano tuner can take care of?'],
+
+            ['How many piano tuners are there in Sao Paulo?']
+            ];
+
+        var addInfo_3 = [[''],
+                         ['', '', 'Sao Paulo has 15e6 people.', '2e-3% of the population own a piano.',
+                                    'There are 20,000 pianos in churches, concert halls and schools.', 'There are 50,000 pianos in Sao Paulo.'],
+                         ['', '', 'A piano is tuned 1 time per year', 'It takes 3 hours to tune a piano.', 'Each piano tuner works 2,000 hours per year',
+                                    'Each piano tuner can take care of 700 pianos.'],
+                         ['']];
+
+        var options_3 = [[['8', '71', '850', '8,000', '71']],
+
+            [['500', '5,000', '50,000', '500,000', '50,000'],
+             ['150,000', '1,500,000', '15,000,000', '150,000,000', '15,000,000'],
+             ['2e-8%', '2e-5%', '2e-3%', '2%', '2e-3%'],
+             ['20,000', '2,000', '200', '20', '20,000'],
+             ['500', '5,000', '50,000', '500,000', '50,000']],
+
+            [['7,000', '700', '70', '7', '700'],
+             ['1 time per decade', '1 time per year', '1 time per month', '1 time per day', '1 time per year'],
+             ['1 day', '10 hours', '3 hours', '30 minutes', '3 hours'],
+             ['8 hours', '24 hours', '100 hours', '2,000 hours', '2,000 hours'],
+             ['7000', '700', '70', '7', '700']],
+
+            [['8', '71', '850', '8,000', '71']]
+            ];
+
+        var individualFeedback_3 =  [[],
+
+              [],
+
+              [],
+
+              []
+              ];
+
+        var trueAnswer_3 = 'As of 2019, the Yellow Pages listed 62 piano tuners in NYC. As NYC\'s population is roughly \
+        3/4 of Sao Paulo\'s population, assuming a similar taste for piano in Sao Paulo and NYC, the estimate is not bad.';
+
+        //----------------------------------
+         var qName_4 = 'Crammed Population'
+
+
+        //short summary of question to be displayed when user is answering to the sub-questions
+        var qSummary_4 = 'If all people in the world were crammed together, how much are would we occupy?';
+
+        var q_4 = [['If all people in the world were crammed together, how much are would we occupy?'],
+
+            ['What is the world\'s population?'],
+
+            ['How many people can fit in one squared meter (3ft * 3ft)?'],
+
+            ['If all people in the world were crammed together, how much are would we occupy?']
+            ];
+
+        var addInfo_4 = [[''],
+                         ['', 'World\'s population is 8e9.'],
+                         ['', 'You can fit 6 people in one square meter.'],
+                         ['']];
+
+        var options_4 = [[['1.3e6 m' + '\u00b2', '1.3e9 m' + '\u00b2', '1.3e12 m' + '\u00b2', '1.3e15 m' + '\u00b2', '1.3e9 m' + '\u00b2']],
+
+            [['1e9', '3e9', '6e9', '8e9', '8e9']],
+
+            [['1', '3', '6', '12', '6']],
+
+            [['1.3e6 m' + '\u00b2', '1.3e9 m' + '\u00b2', '1.3e12 m' + '\u00b2', '1.3e15 m' + '\u00b2', '1.3e9 m' + '\u00b2']]
+            ];
+
+        var individualFeedback_4 =  [[],
+
+              [],
+
+              [],
+
+              []
+              ];
+
+        var trueAnswer_4 = 'The amount of people that fit in one square meter depends on how tightly you wish to fit people. \
+        By assuming 6 people per square meter, and by using the current world population of 7.7 billion (as of 2019), the answer would \
+        be 1.28e9 m\u00b2.';
+        //----------------------------------
+         var qName_5 = 'Balls around Equator'
+
+
+        //short summary of question to be displayed when user is answering to the sub-questions
+        var qSummary_5 = 'How many golf balls would it take to circle the Earth around the equator?';
+
+        var q_5 = [['How many golf balls would it take to circle the Earth around the equator?'],
+
+            ['What is the diameter of a golf ball?'],
+
+            ['What is approximately the circumference of Earth?',
+             'How fast does a commercial plane fly?',
+             'How long does to fly from Chicago to Shanghai?',
+             'What is the circumference of Earth?'
+            ],
+
+            ['How many golf balls would it take to circle the Earth around the equator?']
+            ];
+
+        var addInfo_5 = [[''],
+                         ['', 'A golf ball has 4 cm in diameter.'],
+                         ['', '', 'A plane travels at 1,000 km/h', 'It takes 16 hours to fly from Chicago to Shanghai.', 'The circumference of Earth is 32,000 km.'],
+                         ['']];
+
+        var options_5 = [[['0.8e9', '0.8e10', '0.8e11', '0.8e12', '0.8e9']],
+
+            [['1 cm', '4 cm', '10 cm', '15 cm', '4 cm']],
+
+            [['13,000 km', '20,000 km', '32,000 km', '60,000 km', '32,000 km'],
+             ['100 km/h', '1,000 km/h', '2,0000 km/h', '3,000 km/h', '1,000 km/h'],
+             ['1 hour', '8 hours', '16 hours', '30 hours', '16 hours'],
+             ['13,000 km', '20,000 km', '32,000 km', '60,000 km', '32,000 km']],
+
+            [['0.8e9', '0.8e10', '0.8e11', '0.8e12', '0.8e9']]
+            ];
+
+        var individualFeedback_5 =  [[],
+
+              [],
+
+              [],
+
+              []
+              ];
+
+        var trueAnswer_5 = '';
+
+        //----------------------------------
+         var qName_6 = 'Towel\'s surface area.'
+
+
+        //short summary of question to be displayed when user is answering to the sub-questions
+        var qSummary_6 = 'What is the surface area of a typical shower towel (including its fibers)?';
+
+        var q_6 = [['What is the surface area of a typical shower towel (including its fibers)?'],
+
+            ['What are the dimensions of a typical shower towel?'],
+
+            ['How many fibers does a typical shower towel have?',
+             'At most how many fibers does a typical shower towel have?',
+             'At least how many fibers does a typical shower towel have?',
+             'How many fibers does a typical shower towel have?'
+            ],
+
+            ['What is the surface area of a single fiber?',
+             'Approximate each fiber as a cuboid and ignore the top and bottom areas. What are its approximate side dimensions?',
+             'Ignoring the top and bottom of the cuboid, how many sides each fiber has?',
+             'What is the surface area of a single fiber?'],
+
+            ['What is the surface area of a typical shower towel (including its fibers)?']
+            ];
+
+        var addInfo_6 = [[''],
+                         ['', 'A typical shower is 1 m by 2 m'],
+                         ['', '', 'A typical shower has at most 1,000 fibers.', 'A typical shower has at least 10 fibers.',
+                                    'A typical shower has 100 fibers.'],
+                         ['', '', 'Each fiber has sides 0.5 cm by 0.1cm', 'Each fiber has 4 sides.', 'Each fiber has 2e-5 m\u00b2 of superficial area.'],
+                         ['']];
+
+        var options_6 = [[['1 m\u00b2', '5 m\u00b2', '80 m\u00b2', '300 m\u00b2', '80 m\u00b2']],
+
+            [['0.1 m by 0.2 m', '1 m by 2 m', '5 m by 10 m', '5 m by 5 m', '1 m by 2 m']],
+
+            [['1', '10', '100', '1,000', '100'],
+             ['1', '10', '100', '1,000', '1,000'],
+             ['10,000', '1,000', '100', '10', '10'],
+             ['1', '10', '100', '1,000', '100']],
+
+            [['2e-8 m\u00b2', '2e-5 m\u00b2', '2e-3 m\u00b2', '2e-1 m\u00b2', '2e-5 m\u00b2'],
+             ['0.01 cm by 0.01cm', '0.5 cm by 0.1cm', '5 cm by 1cm', '5 cm by 10cm', '0.5 cm by 0.1cm'],
+             ['1', '2', '3', '4', '4'],
+             ['2e-8 m\u00b2', '2e-5 m\u00b2', '2e-3 m\u00b2', '2e-1 m\u00b2', '2e-5 m\u00b2']],
+
+            [['1 m\u00b2', '5 m\u00b2', '80 m\u00b2', '300 m\u00b2', '80 m\u00b2']]
+            ];
+
+        var individualFeedback_6 =  [[],
+
+              [],
+
+              [],
+
+              []
+              ];
+
+        var trueAnswer_6 = '';
+
+
+        //----------------------------------
+         var qName_7 = 'Filling up the Capitol Dome'
+
+
+        //short summary of question to be displayed when user is answering to the sub-questions
+        var qSummary_7 = 'How long would it take to fill up the US Capitol dome with a running water tap?';
+
+        var q_7 = [['How long would it take to fill up the US Capitol dome with a running water tap?'],
+
+                    ['How fast does water come out of a regular tap?'],
+
+                    ['What is the volume of the US Capitol dome',
+                     'What is the diameter of the dome?',
+                     'What is the volume of a half sphere of radius r?',
+                     'What is the volume of the US Capitol dome'
+                    ],
+
+                    ['How long would it take to fill up the US Capitol dome with a running water tap?']
+                    ];
+
+        var addInfo_7 = [[''],
+                         ['', 'A typical shower is 1 m by 2 m'],
+                         ['', '', 'A typical shower has at most 1,000 fibers.', 'A typical shower has at least 10 fibers.',
+                                    'A typical shower has 100 fibers.'],
+                         ['', '', 'Each fiber has sides 0.5 cm by 0.1cm', 'Each fiber has 4 sides.', 'Each fiber has 2e-5 m\u00b2 of superficial area.'],
+                         ['']];
+
+        var options_7 = [[['5,000 days', '500 days', '50 days', '5 days', '500 days']],
+
+                        [['1', '10', '100', '1,000', '100']],
+
+                        [['2e-8 m\u00b2', '2e-5 m\u00b2', '2e-3 m\u00b2', '2e-1 m\u00b2', '2e-5 m\u00b2'],
+                         ['0.01 cm by 0.01cm', '0.5 cm by 0.1cm', '5 cm by 1cm', '5 cm by 10cm', '0.5 cm by 0.1cm'],
+                         ['1', '2', '3', '4', '4'],
+                         ['2e-8 m\u00b2', '2e-5 m\u00b2', '2e-3 m\u00b2', '2e-1 m\u00b2', '2e-5 m\u00b2']],
+
+                        [['5,000 days', '500 days', '50 days', '5 days', '500 days']]
+                        ];
+
+        var individualFeedback_7 =  [[],
+
+              [],
+
+              [],
+
+              []
+              ];
+
+        var trueAnswer_7 = '';
+        //==============================================================================================
+
+        function getVariables(qNum){
+
+            switch(qNum){
+
+                case 1:
+                    return [qName_1, qSummary_1, q_1, addInfo_1, options_1, individualFeedback_1, trueAnswer_1];
+                case 2:
+                    return [qName_2, qSummary_2, q_2, addInfo_2, options_2, individualFeedback_2, trueAnswer_2];
+                case 3:
+                    return [qName_3, qSummary_3, q_3, addInfo_3, options_3, individualFeedback_3, trueAnswer_3];
+                case 4:
+                    return [qName_4, qSummary_4, q_4, addInfo_4, options_4, individualFeedback_4, trueAnswer_4];
+                case 5:
+                    return [qName_5, qSummary_5, q_5, addInfo_5, options_5, individualFeedback_5, trueAnswer_5];
+                case 6:
+                    return [qName_6, qSummary_6, q_6, addInfo_6, options_6, individualFeedback_6, trueAnswer_6];
+
+            }
+        }
+
+
+        //short summary of question to be displayed when user is answering to the sub-questions
+        var questionSummary;
+
+        //full question and sub-questions
+        var questions;
+
+        var additionalInfo;
+        var options;
+        var individualFeedback;
+        var qName;
+        var trueAnswer;
+
+        var questionOrder = [1, 2, 3, 4, 5, 6];
+        questionOrder.sort(() => Math.random() - 0.5);
+
+        var curQCounter = 0;
+        var curQNum = questionOrder[curQCounter];
+
+        var numQuestions = 6;
+        var deductPoints = 0;
+
+        function initVariables(qNum){
+
+            var info = getVariables(qNum);
+
+            qName = info[0];
+            questionSummary = info[1];
+            questions = info[2];
+            additionalInfo = info[3];
+            options = info[4];
+            individualFeedback = info[5];
+            trueAnswer = info[6];
+        }
+
+
+        var curState = [0, 0];
+        var breakUpDiv = document.getElementById('break-up-id');
+        var summaryDiv = document.getElementById('question-summary');
+        var questionTxtDiv = document.getElementById('question-txt');
+        var questionNameDiv = document.getElementById('qName');
+        var questionBodyDiv = document.getElementById('question-body');
+        var resultsDiv = document.getElementById('results');
+
+        var additionalInfoWrap1 = document.getElementById('add-info-wrap-1');
+        var additionalInfoWrap2 = document.getElementById('add-info-wrap-2');
+
+        var wrongMsgDiv = document.getElementById('wrong-msg');
+        var wrongMsgWrap = document.getElementById('wrong-msg-wrap');
+        var curPointsDiv = document.getElementById('cur-points');
+        var curPointsWrap = document.getElementById('cur-points-wrap');
+        var convertButtonDiv = document.getElementById('convert-button');
+
+
+        var wrongMsgCompilation = ['Not quite right, sneaky pants.', 'Think a bit harder.',
+         'Not this one, fancy pants'];
+
+
+        function convertKmMile(){
+
+            var optionsConverted = [];
+
+            for (var i = 0; i < 4; i ++){
+                var unit = document.getElementById('option_' + i).innerHTML.split(' ');
+                if (unit.length <= 1){
+                    break;
+                }
+                else if (unit[1] == 'km'){
+                    optionsConverted.push(parseInt(unit[0] / 1.6) + ' miles');
+                }
+            }
+            return optionsConverted;
+        }
+
+        function convertCmIn(){
+
+            var optionsConverted = [];
+
+            for (var i = 0; i < 4; i ++){
+                var unit = document.getElementById('option_' + i).innerHTML.split(' ');
+                if (unit.length <= 1){
+                    break;
+                }
+                else if (unit[1] == 'cm'){
+                    var numerical = unit[0]*0.394 > 1 ? parseInt(unit[0]*0.394) : unit[0]*0.394;
+                    optionsConverted.push(numerical.toFixed(2) + ' inches');
+                }
+            }
+
+            return optionsConverted;
+
+        }
+
+        function convertUnits(){
+
+            var options1 = convertKmMile();
+            var options2 = convertCmIn();
+
+            if (options1.length > 0){
+                updateContent(options1);
+            }
+            else if (options2.length > 0){
+                updateContent(options2);
+            }
+            else{
+                updateContent();
+            }
+
+        }
+
+        function updatePoints(){
+
+            var points = Math.max(10 - deductPoints, 1);
+            curPointsDiv.innerHTML = points;
+        }
+
+        function updateContent(optionsConverted){
+
+            initVariables(curQNum);
+
+            if (curState[0] == 0 && questions.length > 1){
+                breakUpDiv.style.display = 'inline-block';
+            }
+
+            //only display the question summary when current question is not the full question
+            if (curState[0] == 0 || curState[0] == questions.length - 1){
+                toggleQuestionSummary(false);
+            }
+            else{
+                toggleQuestionSummary(true);
+            }
+
+            //update the question text and the multiple choice options
+            questionTxtDiv.innerHTML = questions[curState[0]][curState[1]];
+            questionNameDiv.innerHTML = qName;
+
+            for (var i = 0; i < 4; i ++){
+
+                document.getElementById('option_' + i).innerHTML = optionsConverted ?
+                    optionsConverted[i] : options[curState[0]][curState[1]][i];
+            }
+
+            questionBodyDiv.style.display = 'block';
+            curPointsWrap.style.display = 'inline-block';
+            convertButtonDiv.style.display = 'inline-block';
+
+            //only display additional info when appropriate
+            toggleAdditionalInfo();
+            updatePoints();
+
+        }
+
+        function newQuestion(){
+
+            additionalInfoWrap1.innerHTML = '';
+            additionalInfoWrap1.style.display = 'none';
+            additionalInfoWrap2.innerHTML = '';
+            additionalInfoWrap2.style.display = 'none';
+
+            resultsDiv.style.display = 'none';
+
+            deductPoints = 0;
+
+            curQCounter = curQCounter == numQuestions - 1 ? 0 : curQCounter + 1;
+            curQNum = questionOrder[curQCounter];
+
+            curState = [0, 0];
+
+            updateContent();
+
+        }
+
+        updateContent();
+
+        function toggleQuestionSummary(show){
+
+            summaryDiv.innerHTML = '';
+            if (show){
+                var s = document.createElement('span');
+                s.innerHTML = 'Main Question: ';
+                s.className = 'title-txt';
+                s.style.fontWeight = 'bold';
+                summaryDiv.appendChild(s);
+                summaryDiv.appendChild(document.createTextNode(questionSummary));
+
+            }
+        }
+
+        function toggleAdditionalInfo(){
+
+            try{
+                if (additionalInfo[curState[0]][curState[1]]){
+
+                        var newInfo = document.createElement('div');
+                        newInfo.className = 'add-info-perm';
+
+                        var temp = document.createElement('h4');
+                        temp.innerHTML = additionalInfo[curState[0]][curState[1]];
+                        temp.className = 'content-txt';
+                        temp.style.color = 'rgb(155,187,89)';
+
+                        newInfo.appendChild(temp);
+
+                        additionalInfoWrap1.appendChild(newInfo);
+                        additionalInfoWrap1.style.display = 'inline-block';
+
+                }
+                else{
+                    additionalInfoWrap1.innerHTML = '';
+                    additionalInfoWrap1.style.display = 'none';
+                }
+            }
+            catch(error){
+                additionalInfoWrap1.innerHTML = '';
+                additionalInfoWrap1.style.display = 'none';
+            }
+
+            try{
+
+                if (curState[0] > 1 && curState[1] == 0){
+
+                    var newInfo = document.createElement('div');
+                    newInfo.className = 'add-info-perm';
+
+                    var temp = document.createElement('h4');
+
+                    var lastElem = additionalInfo[curState[0] - 1].length;
+                    temp.innerHTML = additionalInfo[curState[0] - 1][lastElem - 1];
+                    temp.className = 'content-txt';
+                    temp.style.color = 'rgb(155,187,89)';
+
+                    newInfo.appendChild(temp);
+
+                    additionalInfoWrap2.appendChild(newInfo);
+                    additionalInfoWrap2.style.display = 'inline-block';
+                }
+
+            }
+            catch(error){
+
+
+            }
+        }
+
+        function canBreakUpFurther(){
+
+            if (curState[1] != 0 || questions[curState[0]].length == 1){
+                breakUpDiv.style.display = 'none';
+            }
+            else{
+                breakUpDiv.style.display = 'inline-block';
+            }
+
+        }
+
+        function breakItUpHandler(){
+
+            deductPoints += 2;
+
+            wrongMsgDiv.innerHTML = '';
+            wrongMsgWrap.style.display = 'none';
+
+            //curState is the full question
+            if (curState[0] == 0){
+                curState[0] ++;
+            }
+            else{
+                curState[1] ++;
+            }
+
+            canBreakUpFurther();
+            updateContent();
+        }
+
+        function correctOption(option){
+            if (options[curState[0]][curState[1]][4] == options[curState[0]][curState[1]][option]){
+                return true;
+            }
+            return false;
+        }
+
+        function displayResults(){
+
+            questionBodyDiv.style.display = 'none';
+            curPointsWrap.style.display = 'none';
+            convertButtonDiv.style.display = 'none';
+
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '';
+
+            toggleQuestionSummary(true);
+            var msg = document.createElement('h3');
+
+            var txt1 = document.createElement('span');
+            txt1.innerHTML = 'You smarty pants, you answered ';
+
+            var txt2 = document.createElement('span');
+            txt2.innerHTML = options[0][0][4];
+            txt2.style.color = 'rgb(155,187,89)';
+            txt2.style.fontStyle = 'italic';
+
+            var txt3 = document.createElement('span');
+            txt3.innerHTML = ' and got ';
+            txt3.className = 'title-txt';
+
+            var txt4 = document.createElement('span');
+            txt4.innerHTML = Math.max(10 - deductPoints, 1);
+            txt4.style.color = 'rgb(155,187,89)';
+            txt4.style.fontStyle = 'italic';
+
+            var txt5 = document.createElement('span');
+            txt5.innerHTML = ' points (out of 10).';
+            txt5.className = 'title-txt';
+
+            msg.className = 'title-txt';
+
+            msg.appendChild(txt1).appendChild(txt2).appendChild(txt3).appendChild(txt4).appendChild(txt5);
+
+            var trueAns = document.createElement('h4');;
+            trueAns.className = 'content-txt';
+            var txt1 = document.createElement('span');
+            txt1.innerHTML = 'Answer: ';
+            txt1.style.color = 'rgb(155,187,89)'
+            txt1.style.fontWeight = 'bold';
+
+            var txt2 = document.createElement('span');
+            txt2.innerHTML = trueAnswer;
+
+            trueAns.appendChild(txt1);
+            trueAns.appendChild(txt2);
+
+            resultsDiv.appendChild(trueAns);
+            resultsDiv.appendChild(msg);
+
+        }
+
+        function nextQuestion(){
+
+            if (curState[0] == 0 || (curState[0] == questions.length - 1 && curState[1] == questions[curState[0]].length - 1)){
+
+                displayResults();
+                return;
+            }
+            else if (curState[1] == 0){
+                curState[0] ++;
+            }
+            else if (curState[1] == questions[curState[0]].length - 1){
+                curState[1] = 0;
+                curState[0] ++;
+            }
+            else if (curState[1] < questions[curState[0]].length - 1){
+                curState[1] ++;
+            }
+
+            canBreakUpFurther();
+            updateContent();
+        }
+
+        function optionHandler(option){
+
+           try {
+              wrongMsgDiv.innerHTML = individualFeedback[curState[0]][curState[1]][option];
+            }
+            catch(error) {
+              wrongMsgDiv.innerHTML = wrongMsgCompilation[Math.floor(Math.random() * wrongMsgCompilation.length)];
+            }
+
+            wrongMsgWrap.style.display = 'inline-block';
+
+            if (correctOption(option)){
+                wrongMsgDiv.innerHTML = '';
+                wrongMsgWrap.style.display = 'none';
+
+                nextQuestion();
+                return;
+            }
+
+            var curPoints = Math.max(10 - deductPoints, 1);
+            console.log(curPoints/2);
+            deductPoints  = Math.floor(10 - curPoints/2);
+            updatePoints();
+
+        }
+
+
+        function addOptionListener(wrapper){
+            wrapper.addEventListener("mouseover", function(){
+                wrapper.style.transform = 'scale(1.1)';
+            });
+
+            wrapper.addEventListener("mouseout", function(){
+                wrapper.style.transform = 'scale(1)';
+            });
+        }
+
+        for (var i = 0; i < 4; i ++){
+            addOptionListener(document.getElementById('option_wrapper_' + i));
+        }
+
+
+
+
+    </script>
+{%endblock%}
